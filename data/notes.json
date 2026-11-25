@@ -8,5 +8,11 @@
     "id": "1795613674387",
     "title": "Updated Zod Test",
     "content": "Valid note update passed Zod validation."
+  },
+  {
+    "id": "1795621545805",
+    "userId": "1795562563515",
+    "title": "My Personal Note",
+    "content": "This note belongs to my account."
   }
 ]

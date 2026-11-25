@@ -1,32 +1,50 @@
+import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import type { Request, Response } from "express";
 import { readNotes, writeNotes } from "../services/notes.service";
 import type { Note } from "../types/note";
 
-export async function createNote(req: Request, res: Response) {
+export async function createNote(req: AuthenticatedRequest, res: Response) {
+    if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+}
     const notes = await readNotes();
 
-    const newNote: Note = {
-        id: Date.now().toString(),
-        title: req.body.title,
-        content: req.body.content
-    };
-
+   const newNote: Note = {
+    id: Date.now().toString(),
+    userId: req.user.userId,
+    title: req.body.title,
+    content: req.body.content
+};
     notes.push(newNote);
 
     await writeNotes(notes);
 
     res.status(201).json(newNote);
 }
-export async function getAllNotes(req: Request, res: Response) {
+export async function getAllNotes(req: AuthenticatedRequest, res: Response) {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const notes = await readNotes();
 
-    res.status(200).json(notes);
+    const userNotes = notes.filter(
+        (note) => note.userId === req.user!.userId
+    );
+
+    res.status(200).json(userNotes);
 }
 
-export async function getNoteById(req: Request, res: Response) {
+export async function getNoteById(req: AuthenticatedRequest, res: Response) {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const notes = await readNotes();
 
-    const note = notes.find((note) => note.id === req.params.id);
+    const note = notes.find(
+        (note) => note.id === req.params.id && note.userId === req.user!.userId
+    );
 
     if (!note) {
         return res.status(404).json({ message: "Note not found" });
@@ -35,10 +53,17 @@ export async function getNoteById(req: Request, res: Response) {
     res.status(200).json(note);
 }
 
-export async function updateNote(req: Request, res: Response) {
+export async function updateNote(req: AuthenticatedRequest, res: Response) {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const notes = await readNotes();
 
-    const noteIndex = notes.findIndex((note) => note.id === req.params.id);
+    const noteIndex = notes.findIndex(
+        (note) => note.id === req.params.id && note.userId === req.user!.userId
+    );
+
     const note = notes[noteIndex];
 
     if (!note) {
@@ -52,7 +77,6 @@ export async function updateNote(req: Request, res: Response) {
 
     res.status(200).json(note);
 }
-
 export async function deleteNote(req: Request, res: Response) {
     const notes = await readNotes();
 
