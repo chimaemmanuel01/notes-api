@@ -3,5 +3,10 @@
     "id": "1795535736077",
     "title": "Modularization Test",
     "content": "My Notes API is now organized into separate modules."
+  },
+  {
+    "id": "1795613674387",
+    "title": "Updated Zod Test",
+    "content": "Valid note update passed Zod validation."
   }
 ]
